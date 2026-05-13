@@ -54,7 +54,7 @@ jobs:
 
       # 🔟 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
       - name: Embed DLL into XLL
-        run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y /O:ExcelDna\MyFunctions.xll
+        run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y
 
       # 1️⃣1️⃣ 列出 ExcelDna 文件夹，确认 XLL 已生成
       - name: List ExcelDna folder after pack
@@ -65,4 +65,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: MyAddin-xll
-          path: ExcelDna\MyFunctions.xll
+          path: ExcelDna\MyFunctions-packed.xll
