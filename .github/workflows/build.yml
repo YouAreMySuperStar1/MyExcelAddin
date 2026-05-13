@@ -19,27 +19,37 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '10.0.x'
-          include-prerelease: true   # 支持预览版
+          include-prerelease: true
 
-      # 3️⃣ 恢复依赖
+      # 3️⃣ 清理旧构建
+      - name: Clean previous build
+        run: dotnet clean MyFunctions/MyFunctions.csproj
+
+      # 4️⃣ 恢复依赖
       - name: Restore dependencies
         run: dotnet restore MyFunctions/MyFunctions.csproj
 
-      # 4️⃣ 构建 DLL
+      # 5️⃣ 构建 DLL
       - name: Build DLL
         run: dotnet build MyFunctions/MyFunctions.csproj -c Release
 
-      # 5️⃣ 复制 DLL 到 ExcelDna 文件夹
+      # 6️⃣ 输出 DLL 信息（大小 + SHA256）
+      - name: Show DLL info
+        run: |
+          dir MyFunctions\bin\Release\net10.0\MyFunctions.dll
+          powershell -Command "Get-FileHash MyFunctions\bin\Release\net10.0\MyFunctions.dll"
+
+      # 7️⃣ 复制 DLL 到 ExcelDna 文件夹
       - name: Copy DLL to ExcelDna folder
         run: copy MyFunctions\bin\Release\net10.0\MyFunctions.dll ExcelDna\
 
-      # 6️⃣ 生成最终 XLL 文件
+      # 8️⃣ 生成最终 XLL 文件
       - name: Package XLL
         run: |
           cd ExcelDna
           ren ExcelDna.xll MyAddin.xll
 
-      # 7️⃣ 上传构建产物（v4）
+      # 9️⃣ 上传构建产物（v4）
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
