@@ -1,10 +1,10 @@
 using ExcelDna.Integration;
 
-public static class TestUDF
+public static class MyUDF
 {
-    [ExcelFunction(Description="Returns 123")]
-    public static double Test()
+    [ExcelFunction(Description = "Returns 10")]
+    public static double ReturnTen()
     {
-        return 123;
+        return 10;
     }
 }
