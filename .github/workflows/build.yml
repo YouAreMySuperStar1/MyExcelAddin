@@ -33,7 +33,7 @@ jobs:
       - name: Build DLL
         run: dotnet build MyFunctions/MyFunctions.csproj -c Release
 
-      # 6️⃣ 输出 DLL 信息（大小 + SHA256）
+      # 6️⃣ 显示 DLL 信息（大小 + SHA256）
       - name: Show DLL info
         run: |
           dir MyFunctions\bin\Release\net10.0\MyFunctions.dll
@@ -43,13 +43,18 @@ jobs:
       - name: Copy DLL to ExcelDna folder
         run: copy MyFunctions\bin\Release\net10.0\MyFunctions.dll ExcelDna\
 
-      # 8️⃣ 生成最终 XLL 文件
-      - name: Package XLL
+      # 8️⃣ 下载 ExcelDnaPack.exe
+      - name: Download ExcelDnaPack
+        run: |
+          Invoke-WebRequest -Uri https://github.com/Excel-DNA/ExcelDna/releases/download/v1.1.0/ExcelDnaPack.exe -OutFile ExcelDna\ExcelDnaPack.exe
+
+      # 9️⃣ 使用 ExcelDnaPack 将 DLL 嵌入 XLL
+      - name: Embed DLL into XLL
         run: |
           cd ExcelDna
-          ren ExcelDna.xll MyAddin.xll
+          .\ExcelDnaPack.exe MyAddin.dna /Y /O:MyAddin.xll
 
-      # 9️⃣ 上传构建产物（v4）
+      # 🔟 上传构建产物
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
