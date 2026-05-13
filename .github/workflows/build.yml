@@ -43,18 +43,13 @@ jobs:
       - name: Copy DLL to ExcelDna folder
         run: copy MyFunctions\bin\Release\net10.0\MyFunctions.dll ExcelDna\
 
-      # 8️⃣ 下载 ExcelDnaPack.exe
-      - name: Download ExcelDnaPack
-        run: |
-          Invoke-WebRequest -Uri https://github.com/Excel-DNA/ExcelDna/releases/download/v1.1.0/ExcelDnaPack.exe -OutFile ExcelDna\ExcelDnaPack.exe
-
-      # 9️⃣ 使用 ExcelDnaPack 将 DLL 嵌入 XLL
+      # 8️⃣ 使用项目里的 ExcelDnaPack.exe 嵌入 DLL
       - name: Embed DLL into XLL
         run: |
           cd ExcelDna
           .\ExcelDnaPack.exe MyAddin.dna /Y /O:MyAddin.xll
 
-      # 🔟 上传构建产物
+      # 9️⃣ 上传构建产物
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
