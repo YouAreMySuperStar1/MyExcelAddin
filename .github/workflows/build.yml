@@ -14,11 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ 安装 .NET SDK
+      # 2️⃣ 安装 .NET 6 SDK
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '6.0.x'
 
       # 3️⃣ 恢复依赖
       - name: Restore dependencies
@@ -30,7 +30,7 @@ jobs:
 
       # 5️⃣ 复制 DLL 到 ExcelDna 文件夹
       - name: Copy DLL to ExcelDna folder
-        run: copy MyFunctions\bin\Release\net7.0\MyFunctions.dll ExcelDna\
+        run: copy MyFunctions\bin\Release\net6.0\MyFunctions.dll ExcelDna\
 
       # 6️⃣ 生成最终 XLL 文件
       - name: Package XLL
