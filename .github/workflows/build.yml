@@ -33,7 +33,7 @@ jobs:
       - name: Build DLL
         run: dotnet build MyFunctions/MyFunctions.csproj -c Release
 
-      # 6️⃣ 显示 DLL 信息（大小 + SHA256）
+      # 6️⃣ 输出 DLL 信息（大小 + SHA256）
       - name: Show DLL info
         run: |
           dir MyFunctions\bin\Release\net10.0\MyFunctions.dll
@@ -45,9 +45,7 @@ jobs:
 
       # 8️⃣ 使用项目里的 ExcelDnaPack.exe 嵌入 DLL
       - name: Embed DLL into XLL
-        run: |
-          cd ExcelDna
-          .\ExcelDnaPack.exe MyAddin.dna /Y /O:MyAddin.xll
+        run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y /O:ExcelDna\MyAddin.xll
 
       # 9️⃣ 上传构建产物
       - name: Upload artifact
