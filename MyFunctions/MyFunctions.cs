@@ -1,17 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+using ExcelDna.Integration;
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+namespace MyFunctions
+{
+    public static class UDFs
+    {
+        [ExcelFunction(Description = "Add two numbers")]
+        public static double MyAdd(double a, double b) => a + b;
 
-  <ItemGroup>
-    <!-- Excel-DNA 集成 DLL，可选，如果本地构建需要引用 -->
-    <Reference Include="ExcelDna.Integration">
-      <HintPath>..\ExcelDna\ExcelDna.Integration.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+        [ExcelFunction(Description = "Multiply two numbers")]
+        public static double MyMultiply(double a, double b) => a * b;
 
-</Project>
+        [ExcelFunction(Description = "Return a greeting string")]
+        public static string SayHello(string name) => $"Hello, {name}!";
+    }
+}
