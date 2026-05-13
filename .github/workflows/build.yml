@@ -1,0 +1,40 @@
+name: Build Excel-DNA Addin
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore MyFunctions/MyFunctions.csproj
+
+      - name: Build DLL
+        run: dotnet build MyFunctions/MyFunctions.csproj -c Release
+
+      - name: Copy DLL to ExcelDna folder
+        run: copy MyFunctions\bin\Release\net7.0\MyFunctions.dll ExcelDna\
+
+      - name: Package XLL
+        run: |
+          cd ExcelDna
+          ren ExcelDna.xll MyAddin.xll
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MyAddin-xll
+          path: ExcelDna\MyAddin.xll
