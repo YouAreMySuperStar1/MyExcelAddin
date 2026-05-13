@@ -14,15 +14,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ 安装 .NET Framework 4.8 构建工具
-      - name: Setup MSBuild for .NET Framework
-        uses: microsoft/setup-msbuild@v1
+      # 2️⃣ 安装 NuGet CLI（确保可以 restore .NET Framework 项目）
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1
 
-      # 3️⃣ 清理旧构建
-      - name: Clean previous build
-        run: msbuild MyFunctions/MyFunctions.csproj /t:Clean /p:Configuration=Release
+      # 3️⃣ Restore NuGet packages
+      - name: Restore NuGet packages
+        run: nuget restore MyFunctions/MyFunctions.csproj
 
-      # 4️⃣ 构建 DLL（.NET Framework 4.8）
+      # 4️⃣ 构建 .NET Framework 4.8 DLL
       - name: Build DLL
         run: msbuild MyFunctions/MyFunctions.csproj /t:Build /p:Configuration=Release /p:Platform="Any CPU"
 
@@ -42,24 +42,20 @@ jobs:
         run: |
           Copy-Item -Path MyFunctions\bin\Release\MyFunctions.dll -Destination ExcelDna\
 
-      # 8️⃣ 列出 ExcelDna 文件夹，确认 DLL 存在
-      - name: List ExcelDna folder
-        run: dir ExcelDna
-
-      # 9️⃣ 修改 .dna 文件确保 RuntimeVersion=v4.0
+      # 8️⃣ 修改 .dna 文件确保 RuntimeVersion=v4.0
       - name: Ensure RuntimeVersion in .dna
         run: |
           (Get-Content ExcelDna\MyFunctions.dna) -replace '<DnaLibrary', '<DnaLibrary RuntimeVersion="v4.0"' | Set-Content ExcelDna\MyFunctions.dna
 
-      # 🔟 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
+      # 9️⃣ 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
       - name: Embed DLL into XLL
         run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y
 
-      # 1️⃣1️⃣ 列出 ExcelDna 文件夹，确认 XLL 已生成
+      # 🔟 列出 ExcelDna 文件夹，确认 XLL 已生成
       - name: List ExcelDna folder after pack
         run: dir ExcelDna
 
-      # 1️⃣2️⃣ 上传 XLL artifact
+      # 1️⃣1️⃣ 上传 XLL artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

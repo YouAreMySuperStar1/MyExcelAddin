@@ -1,13 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- 目标框架 -->
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
+    <!-- 可选：启用 Nullable 和 ImplicitUsings -->
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- 引用 Excel-DNA 核心程序集 -->
     <Reference Include="ExcelDna.Integration">
       <HintPath>..\ExcelDna\ExcelDna.Integration.dll</HintPath>
     </Reference>
