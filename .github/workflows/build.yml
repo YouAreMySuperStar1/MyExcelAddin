@@ -14,12 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ 安装 .NET 10 SDK（预览版）
+      # 2️⃣ 安装 .NET 10 SDK
       - name: Setup .NET 10 SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '10.0.x'
-          include-prerelease: true
+          dotnet-version: '10.0.300'
 
       # 3️⃣ 清理旧构建
       - name: Clean previous build
@@ -43,13 +42,13 @@ jobs:
       - name: Copy DLL to ExcelDna folder
         run: copy MyFunctions\bin\Release\net10.0\MyFunctions.dll ExcelDna\
 
-      # 8️⃣ 使用项目里的 ExcelDnaPack.exe 嵌入 DLL
+      # 8️⃣ 打包 DLL 生成 XLL
       - name: Embed DLL into XLL
-        run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y /O:ExcelDna\MyAddin.xll
+        run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y /O:ExcelDna\MyFunctions.xll
 
       # 9️⃣ 上传构建产物
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MyAddin-xll
-          path: ExcelDna\MyAddin.xll
+          path: ExcelDna\MyFunctions.xll
