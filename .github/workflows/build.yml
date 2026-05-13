@@ -35,18 +35,32 @@ jobs:
       # 6️⃣ 输出 DLL 信息（大小 + SHA256）
       - name: Show DLL info
         run: |
-          dir MyFunctions\bin\Release\net10.0\MyFunctions.dll
+          dir MyFunctions\bin\Release\net10.0
           powershell -Command "Get-FileHash MyFunctions\bin\Release\net10.0\MyFunctions.dll"
 
-      # 7️⃣ 复制 DLL 到 ExcelDna 文件夹
-      - name: Copy DLL to ExcelDna folder
-        run: copy MyFunctions\bin\Release\net10.0\MyFunctions.dll ExcelDna\
+      # 7️⃣ 确保 ExcelDna 文件夹存在
+      - name: Ensure ExcelDna folder exists
+        run: |
+          if (-Not (Test-Path ExcelDna)) { New-Item -ItemType Directory -Path ExcelDna }
 
-      # 8️⃣ 打包 DLL 生成 XLL
+      # 8️⃣ 复制 DLL 到 ExcelDna 文件夹
+      - name: Copy DLL to ExcelDna folder
+        run: |
+          Copy-Item -Path MyFunctions\bin\Release\net10.0\MyFunctions.dll -Destination ExcelDna\
+
+      # 9️⃣ 列出 ExcelDna 文件夹，确认文件存在
+      - name: List ExcelDna folder
+        run: dir ExcelDna
+
+      # 🔟 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
       - name: Embed DLL into XLL
         run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y /O:ExcelDna\MyFunctions.xll
 
-      # 9️⃣ 上传构建产物
+      # 1️⃣1️⃣ 列出 ExcelDna 文件夹，确认 XLL 已生成
+      - name: List ExcelDna folder after pack
+        run: dir ExcelDna
+
+      # 1️⃣2️⃣ 上传 XLL artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
