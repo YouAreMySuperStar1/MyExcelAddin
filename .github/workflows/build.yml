@@ -1,4 +1,4 @@
-name: Build Excel-DNA Addin
+name: Build Excel-DNA Addin (.NET Framework 4.8)
 
 on:
   push:
@@ -10,47 +10,46 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 1️⃣ 获取仓库代码
+      # 1️⃣ 检出代码
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ 安装 .NET 10 SDK
-      - name: Setup .NET 10 SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '10.0.300'
+      # 2️⃣ 安装 .NET Framework 4.8 构建工具
+      - name: Setup MSBuild for .NET Framework
+        uses: microsoft/setup-msbuild@v1
 
       # 3️⃣ 清理旧构建
       - name: Clean previous build
-        run: dotnet clean MyFunctions/MyFunctions.csproj
+        run: msbuild MyFunctions/MyFunctions.csproj /t:Clean /p:Configuration=Release
 
-      # 4️⃣ 恢复依赖
-      - name: Restore dependencies
-        run: dotnet restore MyFunctions/MyFunctions.csproj
-
-      # 5️⃣ 构建 DLL
+      # 4️⃣ 构建 DLL（.NET Framework 4.8）
       - name: Build DLL
-        run: dotnet build MyFunctions/MyFunctions.csproj -c Release
+        run: msbuild MyFunctions/MyFunctions.csproj /t:Build /p:Configuration=Release /p:Platform="Any CPU"
 
-      # 6️⃣ 输出 DLL 信息（大小 + SHA256）
+      # 5️⃣ 输出 DLL 信息（大小 + SHA256）
       - name: Show DLL info
         run: |
-          dir MyFunctions\bin\Release\net10.0
-          powershell -Command "Get-FileHash MyFunctions\bin\Release\net10.0\MyFunctions.dll"
+          dir MyFunctions\bin\Release
+          powershell -Command "Get-FileHash MyFunctions\bin\Release\MyFunctions.dll"
 
-      # 7️⃣ 确保 ExcelDna 文件夹存在
+      # 6️⃣ 确保 ExcelDna 文件夹存在
       - name: Ensure ExcelDna folder exists
         run: |
           if (-Not (Test-Path ExcelDna)) { New-Item -ItemType Directory -Path ExcelDna }
 
-      # 8️⃣ 复制 DLL 到 ExcelDna 文件夹
+      # 7️⃣ 复制 DLL 到 ExcelDna 文件夹
       - name: Copy DLL to ExcelDna folder
         run: |
-          Copy-Item -Path MyFunctions\bin\Release\net10.0\MyFunctions.dll -Destination ExcelDna\
+          Copy-Item -Path MyFunctions\bin\Release\MyFunctions.dll -Destination ExcelDna\
 
-      # 9️⃣ 列出 ExcelDna 文件夹，确认文件存在
+      # 8️⃣ 列出 ExcelDna 文件夹，确认 DLL 存在
       - name: List ExcelDna folder
         run: dir ExcelDna
+
+      # 9️⃣ 修改 .dna 文件确保 RuntimeVersion=v4.0
+      - name: Ensure RuntimeVersion in .dna
+        run: |
+          (Get-Content ExcelDna\MyFunctions.dna) -replace '<DnaLibrary', '<DnaLibrary RuntimeVersion="v4.0"' | Set-Content ExcelDna\MyFunctions.dna
 
       # 🔟 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
       - name: Embed DLL into XLL
