@@ -14,48 +14,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2️⃣ 安装 NuGet CLI（确保可以 restore .NET Framework 项目）
+      # 2️⃣ 安装 MSBuild（支持 .NET Framework 编译）
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      # 3️⃣ 安装 NuGet CLI（确保可以 restore .NET Framework 项目）
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v1
 
-      # 3️⃣ Restore NuGet packages
+      # 4️⃣ Restore NuGet packages
       - name: Restore NuGet packages
         run: nuget restore MyFunctions/MyFunctions.csproj
 
-      # 4️⃣ 构建 .NET Framework 4.8 DLL
+      # 5️⃣ 构建 .NET Framework 4.8 DLL
       - name: Build DLL
-        run: msbuild MyFunctions/MyFunctions.csproj /t:Build /p:Configuration=Release /p:Platform="Any CPU"
+        run: msbuild MyFunctions\MyFunctions.csproj /t:Build /p:Configuration=Release /p:Platform="Any CPU"
 
-      # 5️⃣ 输出 DLL 信息（大小 + SHA256）
+      # 6️⃣ 输出 DLL 信息（大小 + SHA256）
       - name: Show DLL info
         run: |
           dir MyFunctions\bin\Release
           powershell -Command "Get-FileHash MyFunctions\bin\Release\MyFunctions.dll"
 
-      # 6️⃣ 确保 ExcelDna 文件夹存在
+      # 7️⃣ 确保 ExcelDna 文件夹存在
       - name: Ensure ExcelDna folder exists
         run: |
           if (-Not (Test-Path ExcelDna)) { New-Item -ItemType Directory -Path ExcelDna }
 
-      # 7️⃣ 复制 DLL 到 ExcelDna 文件夹
+      # 8️⃣ 复制 DLL 到 ExcelDna 文件夹
       - name: Copy DLL to ExcelDna folder
         run: |
           Copy-Item -Path MyFunctions\bin\Release\MyFunctions.dll -Destination ExcelDna\
 
-      # 8️⃣ 修改 .dna 文件确保 RuntimeVersion=v4.0
+      # 9️⃣ 修改 .dna 文件确保 RuntimeVersion=v4.0
       - name: Ensure RuntimeVersion in .dna
         run: |
           (Get-Content ExcelDna\MyFunctions.dna) -replace '<DnaLibrary', '<DnaLibrary RuntimeVersion="v4.0"' | Set-Content ExcelDna\MyFunctions.dna
 
-      # 9️⃣ 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
+      # 🔟 使用 ExcelDnaPack.exe 嵌入 DLL 生成 XLL
       - name: Embed DLL into XLL
         run: ExcelDna\ExcelDnaPack.exe ExcelDna\MyFunctions.dna /Y
 
-      # 🔟 列出 ExcelDna 文件夹，确认 XLL 已生成
+      # 1️⃣1️⃣ 列出 ExcelDna 文件夹，确认 XLL 已生成
       - name: List ExcelDna folder after pack
         run: dir ExcelDna
 
-      # 1️⃣1️⃣ 上传 XLL artifact
+      # 1️⃣2️⃣ 上传 XLL artifact
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
